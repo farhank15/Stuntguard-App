@@ -13,8 +13,8 @@ import SignInForm from "./pages/Sign-In";
 import SignUpForm from "./pages/Sign-Up";
 import ForgotPassword from "./pages/ForgotPasswor";
 import DataAnak from "./pages/DataAnak";
-import TambahAnak from "./components/molecules/TambahAnak";
 import AddChildForm from "./components/molecules/AddChildForm";
+import EditFormChild from "@/pages/EditFormChild";
 
 function App() {
   return (
@@ -34,6 +34,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/data-anak" element={<DataAnak />} />
           <Route path="/tambah-data-anak" element={<AddChildForm />} />
+          <Route path="/edit-data-anak/:id" element={<EditFormChild />} />
         </Routes>
       </Appshell>
     </Router>

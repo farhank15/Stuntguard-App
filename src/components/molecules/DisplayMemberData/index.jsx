@@ -12,7 +12,6 @@ const DisplayMember = () => {
   useEffect(() => {
     const fetchMembers = async () => {
       const { data, error } = await supabase.from("orangtua").select("*");
-
       if (error) {
         console.error("Error fetching members:", error.message);
         Swal.fire({
@@ -26,11 +25,10 @@ const DisplayMember = () => {
       }
       setLoading(false);
     };
-
     fetchMembers();
   }, []);
 
-  const handleDelete = async (id, photoPath) => {
+  const handleDelete = async (id, parentPhotoPath) => {
     const confirmResult = await Swal.fire({
       title: "Apakah Anda yakin?",
       text: "Data anggota ini akan dihapus!",
@@ -41,40 +39,91 @@ const DisplayMember = () => {
     });
 
     if (confirmResult.isConfirmed) {
-      const { error } = await supabase.from("orangtua").delete().eq("id", id);
+      try {
+        // Fetch child records associated with the parent
+        const { data: children, error: fetchChildrenError } = await supabase
+          .from("anak")
+          .select("*")
+          .eq("id_orangtua", id);
 
-      if (error) {
-        console.error("Error deleting member:", error.message);
-        Swal.fire({
-          title: "Error",
-          text: "Gagal menghapus data anggota!",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      } else {
-        if (photoPath) {
-          const photoName = `profile-ortu/${photoPath.split("/").pop()}`; // Extract the file name from the path and prefix with 'profile/'
-          const { error: deleteError } = await supabase.storage
+        if (fetchChildrenError) {
+          throw new Error(
+            "Gagal mengambil data anak: " + fetchChildrenError.message
+          );
+        }
+
+        // Delete parent record
+        const { error: deleteParentError } = await supabase
+          .from("orangtua")
+          .delete()
+          .eq("id", id);
+
+        if (deleteParentError) {
+          throw new Error(
+            "Gagal menghapus data anggota: " + deleteParentError.message
+          );
+        }
+
+        // Delete parent photo if exists
+        if (parentPhotoPath) {
+          const parentPhotoName = `profile-ortu/${parentPhotoPath
+            .split("/")
+            .pop()}`;
+          const { error: deleteParentPhotoError } = await supabase.storage
             .from("images")
-            .remove([photoName]);
+            .remove([parentPhotoName]);
 
-          if (deleteError) {
-            console.error("Error deleting photo:", deleteError.message);
-            Swal.fire({
-              title: "Error",
-              text: "Gagal menghapus foto!",
-              icon: "error",
-              confirmButtonText: "OK",
-            });
-            return;
+          if (deleteParentPhotoError) {
+            throw new Error(
+              "Gagal menghapus foto orang tua: " +
+                deleteParentPhotoError.message
+            );
           }
         }
-        // Update members state to exclude the deleted member
+
+        // Delete each child's photo and record
+        for (const child of children) {
+          if (child.foto) {
+            const childPhotoName = `profile-anak/${child.foto
+              .split("/")
+              .pop()}`;
+            const { error: deleteChildPhotoError } = await supabase.storage
+              .from("images")
+              .remove([childPhotoName]);
+
+            if (deleteChildPhotoError) {
+              throw new Error(
+                "Gagal menghapus foto anak: " + deleteChildPhotoError.message
+              );
+            }
+          }
+
+          const { error: deleteChildError } = await supabase
+            .from("anak")
+            .delete()
+            .eq("id", child.id);
+
+          if (deleteChildError) {
+            throw new Error(
+              "Gagal menghapus data anak: " + deleteChildError.message
+            );
+          }
+        }
+
+        // Update members state to exclude the deleted parent
         setMembers(members.filter((member) => member.id !== id));
         Swal.fire({
           title: "Berhasil",
           text: "Data anggota berhasil dihapus!",
           icon: "success",
+          confirmButtonText: "OK",
+        });
+      } catch (error) {
+        console.error(error.message);
+        Swal.fire({
+          title: "Error",
+          text: error.message,
+          icon: "error",
           confirmButtonText: "OK",
         });
       }
@@ -92,14 +141,14 @@ const DisplayMember = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 border-2 h-auto">
-      <h2 className="text-2xl font-bold mb-6 py-2 text-accent-800 rounded-md bg-success-300 text-center">
+    <div className="container h-auto px-4 py-8 mx-auto border-2">
+      <h2 className="py-2 mb-6 text-2xl font-bold text-center rounded-md text-accent-800 bg-success-300">
         Daftar Anggota
       </h2>
       <input
         type="text"
         placeholder="Cari berdasarkan NIK atau nama"
-        className="mb-6 p-2 border-2 border-gray-300 rounded-md w-full focus:border-success-400 focus:outline-none"
+        className="w-full p-2 mb-6 border-2 border-gray-300 rounded-md focus:border-success-400 focus:outline-none"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
@@ -111,14 +160,14 @@ const DisplayMember = () => {
           </h1>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredMembers.map((member) => (
-            <div key={member.id} className="bg-white shadow-md rounded-lg p-4">
+            <div key={member.id} className="p-4 bg-white rounded-lg shadow-md">
               <div className="flex items-center mb-4">
                 <img
                   src={member.foto ? member.foto : Avatar}
                   alt="Avatar"
-                  className="h-16 w-16 rounded-full object-cover"
+                  className="object-cover w-16 h-16 rounded-full"
                   onError={(e) => {
                     e.target.src = Avatar;
                   }}

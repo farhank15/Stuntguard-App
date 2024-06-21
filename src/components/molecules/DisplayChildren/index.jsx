@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { supabase } from "@/client/supabaseClient";
 import Avatar from "@assets/icons/avatar.png";
 import Dotbutton from "@assets/icons/dot-button.svg";
+import { Link } from "react-router-dom"; // Import Link
 
 const DisplayChildren = () => {
   const [children, setChildren] = useState([]);
@@ -41,16 +42,6 @@ const DisplayChildren = () => {
 
   const handleMenuToggle = (id) => {
     setActiveMenu(activeMenu === id ? null : id);
-  };
-
-  const handleDetail = (id) => {
-    // Handle detail action
-    console.log("Detail", id);
-  };
-
-  const handleEdit = (id) => {
-    // Handle edit action
-    console.log("Edit", id);
   };
 
   const deleteImage = async (path) => {
@@ -140,8 +131,8 @@ const DisplayChildren = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 border-2 h-auto">
-      <h2 className="text-2xl font-bold mb-6 py-2 text-accent-800 rounded-md bg-success-300 text-center">
+    <div className="container h-auto px-4 py-8 mx-auto border-2">
+      <h2 className="py-2 mb-6 text-2xl font-bold text-center rounded-md text-accent-800 bg-success-300">
         Daftar Anak
       </h2>
       <input
@@ -151,7 +142,7 @@ const DisplayChildren = () => {
         className="w-full p-2 mb-6 border rounded"
         placeholder="Cari anak atau wali..."
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredChildren.length === 0 ? (
           <div className="col-span-full h-[20rem] flex justify-center items-center text-gray-600">
             <h1 className="w-[25rem] text-center text-xl text-slate-400">
@@ -162,13 +153,13 @@ const DisplayChildren = () => {
           filteredChildren.map((child) => (
             <div
               key={child.id}
-              className="relative bg-white shadow-md rounded-lg p-4"
+              className="relative p-4 bg-white rounded-lg shadow-md"
             >
               <div className="flex items-center mb-4">
                 <img
                   src={child.foto ? child.foto : Avatar}
                   alt="Avatar"
-                  className="h-16 w-16 rounded-full object-cover"
+                  className="object-cover w-16 h-16 rounded-full"
                   onError={(e) => {
                     e.target.src = Avatar;
                   }}
@@ -177,34 +168,34 @@ const DisplayChildren = () => {
                   <h3 className="text-xl font-semibold">{child.nama}</h3>
                   <p className="text-gray-600">Wali: {child.orangtua.nama}</p>
                 </div>
-                <div className="ml-auto relative p-2">
+                <div className="relative p-2 ml-auto">
                   <button
                     onClick={() => handleMenuToggle(child.id)}
                     className="focus:outline-none"
                   >
                     <img
                       src={Dotbutton}
-                      className="h-6 w-6 md:h-8 md:w-8 m-auto"
+                      className="w-6 h-6 m-auto md:h-8 md:w-8"
                       alt="Menu"
                     />
                   </button>
                   {activeMenu === child.id && (
-                    <div className="absolute z-10 right-0 mt-2 w-48 bg-white border rounded-lg shadow-md">
-                      <button
-                        onClick={() => handleDetail(child.id)}
-                        className="block px-4 py-2 text-left w-full hover:bg-gray-100"
+                    <div className="absolute right-0 z-10 w-48 mt-2 bg-white border rounded-lg shadow-md">
+                      <Link
+                        to={`/detail/${child.id}`}
+                        className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                       >
                         Detail
-                      </button>
-                      <button
-                        onClick={() => handleEdit(child.id)}
-                        className="block px-4 py-2 text-left w-full hover:bg-gray-100"
+                      </Link>
+                      <Link
+                        to={`/edit-data-anak/${child.id}`}
+                        className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                       >
                         Edit
-                      </button>
+                      </Link>
                       <button
                         onClick={() => handleDelete(child.id, child.foto)}
-                        className="block px-4 py-2 text-left w-full hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                         disabled={isDeleting}
                       >
                         {isDeleting ? "Menghapus..." : "Hapus"}
@@ -213,7 +204,7 @@ const DisplayChildren = () => {
                   )}
                 </div>
               </div>
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm text-gray-600">
                 Dibuat pada: {new Date(child.dibuat_pada).toLocaleDateString()}
               </p>
             </div>

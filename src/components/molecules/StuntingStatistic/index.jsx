@@ -48,16 +48,16 @@ const StuntingStatistics = () => {
   }, []);
 
   return (
-    <div className="mt-20 p-4 md:p-8 rounded-xl">
-      <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-10">
+    <div className="p-4 mt-20 md:p-8 rounded-xl">
+      <div className="flex flex-col items-center space-y-6 md:flex-row md:items-start md:space-y-0 md:space-x-10">
         <div className="md:w-1/2">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 text-center md:text-left">
+          <h2 className="text-2xl font-bold text-center text-gray-800 md:text-3xl md:text-left">
             Statistik Prevalensi Stunting di Indonesia
           </h2>
-          <p className="mt-4 text-gray-600 text-sm md:text-base leading-relaxed text-center md:text-left">
+          <p className="mt-4 text-sm leading-relaxed text-center text-gray-600 md:text-base md:text-left">
             Data prevalensi stunting di Indonesia dari tahun 2015 hingga 2023.
           </p>
-          <p className="mt-4 text-gray-600 text-sm md:text-base leading-relaxed text-center md:text-left">
+          <p className="mt-4 text-sm leading-relaxed text-center text-gray-600 md:text-base md:text-left">
             Grafik di sebelah kanan menunjukkan tren penurunan prevalensi
             stunting di Indonesia selama beberapa tahun terakhir. Terlihat bahwa
             prevalensi stunting terus menurun dari 28.0% pada tahun 2015 menjadi
@@ -65,7 +65,7 @@ const StuntingStatistics = () => {
             program pemerintah serta berbagai pihak dalam mengatasi masalah
             stunting.
           </p>
-          <p className="mt-4 text-gray-600 text-sm md:text-base leading-relaxed text-center md:text-left">
+          <p className="mt-4 text-sm leading-relaxed text-center text-gray-600 md:text-base md:text-left">
             Meskipun ada penurunan yang signifikan, masih diperlukan kerja keras
             untuk mencapai target prevalensi stunting yang lebih rendah di masa
             mendatang. Upaya yang terus menerus dalam meningkatkan gizi,
@@ -74,7 +74,7 @@ const StuntingStatistics = () => {
           </p>
         </div>
         <div
-          className="md:w-1/2 w-full max-w-full sm:max-w-2xl mx-auto"
+          className="w-full max-w-full mx-auto md:w-1/2 sm:max-w-2xl"
           ref={chartRef}
         >
           <ResponsiveContainer width="100%" height={400}>
