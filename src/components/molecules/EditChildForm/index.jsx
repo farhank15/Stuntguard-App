@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/client/supabaseClient";
 import Swal from "sweetalert2";
 import { v4 as uuidv4 } from "uuid";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const CDNURL =
   "https://kqwhwlnyvahaddispubu.supabase.co/storage/v1/object/public/images/";
@@ -10,6 +12,8 @@ const CDNURL =
 const EditChildForm = () => {
   const { id } = useParams();
   const [parents, setParents] = useState([]);
+  const [filteredParents, setFilteredParents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     nama: "",
     nik: "",
@@ -23,10 +27,16 @@ const EditChildForm = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      const token = Cookies.get("user_session");
+      const decodedToken = jwtDecode(token);
+      const adminId = decodedToken.id;
+
       const { data: anak, error: anakError } = await supabase
         .from("anak")
         .select("*")
@@ -35,7 +45,8 @@ const EditChildForm = () => {
 
       const { data: orangtua, error: orangtuaError } = await supabase
         .from("orangtua")
-        .select("id, nama");
+        .select("id, nama")
+        .eq("admin_id", adminId);
 
       if (anakError || orangtuaError) {
         Swal.fire({
@@ -51,6 +62,7 @@ const EditChildForm = () => {
         });
         setPhotoPreview(anak.foto);
         setParents(orangtua);
+        setFilteredParents(orangtua);
       }
       setLoading(false);
     };
@@ -98,6 +110,15 @@ const EditChildForm = () => {
       ...errors,
       [name]: error,
     });
+  };
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    const filtered = parents.filter((parent) =>
+      parent.nama.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredParents(filtered);
   };
 
   const validateForm = () => {
@@ -307,20 +328,38 @@ const EditChildForm = () => {
             <label className="label">
               <span className="label-text">Nama Orang Tua</span>
             </label>
-            <select
-              name="id_orangtua"
-              className="w-full select select-bordered"
-              value={formData.id_orangtua}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Pilih Orang Tua</option>
-              {parents.map((parent) => (
-                <option key={parent.id} value={parent.id}>
-                  {parent.nama}
-                </option>
-              ))}
-            </select>
+            <div ref={dropdownRef} className="relative">
+              <input
+                type="text"
+                placeholder="Cari Orang Tua"
+                className="input input-bordered w-full mb-2"
+                value={searchTerm}
+                onChange={handleSearch}
+                onFocus={() => setDropdownVisible(true)}
+              />
+              {dropdownVisible && (
+                <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto">
+                  {filteredParents.map((parent) => (
+                    <li key={parent.id}>
+                      <button
+                        type="button"
+                        className="w-full text-left"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            id_orangtua: parent.id,
+                          });
+                          setSearchTerm(parent.nama);
+                          setDropdownVisible(false);
+                        }}
+                      >
+                        {parent.nama}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
           <div className="mb-4 form-control">
             <label className="label">

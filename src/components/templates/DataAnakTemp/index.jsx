@@ -4,7 +4,7 @@ import React from "react";
 
 const DataAnakTemp = () => {
   return (
-    <div className="pt-24">
+    <div className="pt-20 pb-20 font-poppins">
       <TambahAnak />
       <DisplayChildren />
     </div>

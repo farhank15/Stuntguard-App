@@ -2,23 +2,40 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import SigninSignup from "@components/molecules/Signin-Signup";
 import Logo from "@assets/images/logos/stuntguard.svg";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
   const menuRef = useRef(null);
-
-  const handleDocumentClick = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setDropdownOpen(false);
-    }
-    if (menuRef.current && !menuRef.current.contains(event.target)) {
-      setMenuOpen(false);
-    }
-  };
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    const token = Cookies.get("user_session"); // Adjust the cookie name to match your auth token cookie
+    if (token) {
+      setIsAuthenticated(true);
+      try {
+        const decodedToken = jwtDecode(token);
+        if (decodedToken.role === "admin") {
+          setIsAdmin(true);
+        }
+      } catch (error) {
+        console.error("Invalid token:", error);
+      }
+    }
+
+    const handleDocumentClick = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+
     document.addEventListener("click", handleDocumentClick);
     return () => {
       document.removeEventListener("click", handleDocumentClick);
@@ -88,18 +105,36 @@ const Navbar = () => {
                       Kalkulator Gizi
                     </Link>
                   </li>
-                  <li>
-                    <Link to="/data-anak" onClick={handleLinkClick}>
-                      Data Anak
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/data-orangtua" onClick={handleLinkClick}>
-                      Data Orang Tua
-                    </Link>
-                  </li>
+                  {isAuthenticated && isAdmin && (
+                    <>
+                      <li>
+                        <Link to="/data-anak" onClick={handleLinkClick}>
+                          Data Anak
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/data-orangtua" onClick={handleLinkClick}>
+                          Data Orang Tua
+                        </Link>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </li>
+              {isAuthenticated && !isAdmin && (
+                <li>
+                  <Link to="/events" onClick={handleLinkClick}>
+                    Acara
+                  </Link>
+                </li>
+              )}
+              {isAdmin && (
+                <li>
+                  <Link to="/manage-events" onClick={handleLinkClick}>
+                    Manage Events
+                  </Link>
+                </li>
+              )}
             </ul>
           )}
         </div>
@@ -134,20 +169,38 @@ const Navbar = () => {
                       Kalkulator Gizi
                     </Link>
                   </li>
-                  <li>
-                    <Link to="/data-anak" onClick={handleLinkClick}>
-                      Data Anak
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/data-orangtua" onClick={handleLinkClick}>
-                      Data Orang Tua
-                    </Link>
-                  </li>
+                  {isAuthenticated && isAdmin && (
+                    <>
+                      <li>
+                        <Link to="/data-anak" onClick={handleLinkClick}>
+                          Data Anak
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/data-orangtua" onClick={handleLinkClick}>
+                          Data Orang Tua
+                        </Link>
+                      </li>
+                    </>
+                  )}
                 </ul>
               )}
             </details>
           </li>
+          {isAuthenticated && !isAdmin && (
+            <li>
+              <Link to="/events" onClick={handleLinkClick}>
+                Acara
+              </Link>
+            </li>
+          )}
+          {isAdmin && (
+            <li>
+              <Link to="/manage-events" onClick={handleLinkClick}>
+                Manage Events
+              </Link>
+            </li>
+          )}
         </ul>
       </div>
       <div className="navbar-end">

@@ -1,60 +1,93 @@
-import React, { useState, useEffect } from "react";
-import { supabase } from "@/client/supabaseClient";
-import { useNavigate } from "react-router-dom";
-import Button from "@components/atoms/Button";
-import Avatar from "@/components/atoms/Avatar";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import Avatar from "react-avatar";
+import Swal from "sweetalert2";
 
 const SigninSignup = () => {
-  const [user, setUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+    const token = Cookies.get("user_session");
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
+      setUserData(decodedToken);
+      setIsLoggedIn(true);
+    }
+
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
     };
 
-    getSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
-
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      authListener.subscription.unsubscribe();
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    navigate("/");
+  const handleLogout = () => {
+    Cookies.remove("user_session");
+    setIsLoggedIn(false);
+    setUserData(null);
+    Swal.fire({
+      title: "Berhasil",
+      text: "Berhasil logout!",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false,
+    }).then(() => {
+      navigate("/");
+      window.location.reload(); // Tambahkan ini untuk merefresh halaman
+    });
   };
 
-  if (user) {
-    return (
-      <div className="relative">
-        <Avatar user={user} onLogout={handleLogout} />
-      </div>
-    );
-  }
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
   return (
-    <div className="flex gap-3">
-      <Button
-        className="bg-primary-400 C-button"
-        name="Sign In"
-        path="/sign-in"
-      />
-      <Button
-        className="bg-secondary-400 C-button"
-        name="Sign Up"
-        path="/sign-up"
-      />
+    <div className="flex items-center gap-3">
+      {isLoggedIn ? (
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={toggleDropdown}
+            className="btn btn-ghost btn-circle avatar"
+          >
+            <Avatar name={userData.email} size="40" round={true} />
+          </button>
+          {isDropdownOpen && (
+            <ul className="absolute right-0 mt-2 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
+              <li>
+                <Link
+                  to="/dashboard"
+                  className="justify-between"
+                  onClick={() => setIsDropdownOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <button onClick={handleLogout}>Logout</button>
+              </li>
+            </ul>
+          )}
+        </div>
+      ) : (
+        <>
+          <Link to="/sign-in" className="btn btn-primary text-white">
+            Sign In
+          </Link>
+          <Link to="/sign-up" className="btn btn-secondary text-white">
+            Sign Up
+          </Link>
+        </>
+      )}
     </div>
   );
 };

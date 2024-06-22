@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const FloatingActionButton = ({ link }) => {
+const DynamicCardAdd = ({ link }) => {
   return (
     <div className="fixed bottom-10 right-10">
       <Link to={link}>
@@ -26,4 +26,4 @@ const FloatingActionButton = ({ link }) => {
   );
 };
 
-export default FloatingActionButton;
+export default DynamicCardAdd;

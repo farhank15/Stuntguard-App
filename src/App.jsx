@@ -11,10 +11,13 @@ import EditMemberForm from "./components/molecules/EditMemberForm";
 import DataOrangTua from "./pages/DataOrangTua";
 import SignInForm from "./pages/Sign-In";
 import SignUpForm from "./pages/Sign-Up";
-import ForgotPassword from "./pages/ForgotPasswor";
+import ForgotPassword from "./pages/ForgotPassword";
 import DataAnak from "./pages/DataAnak";
 import AddChildForm from "./components/molecules/AddChildForm";
 import EditFormChild from "@/pages/EditFormChild";
+import EventSchedule from "./pages/EventSchedule";
+import ManageEvents from "./pages/ManageEvents";
+import PrivateRoute from "./utils/ProtectedRoute";
 
 function App() {
   return (
@@ -26,15 +29,75 @@ function App() {
           <Route path="/artikel-kesehatan" element={<ArticleList />} />
           <Route path="/artikel-kesehatan/:id" element={<ArticlePage />} />
           <Route path="/kalkulator-gizi" element={<KalkulatorGizi />} />
-          <Route path="/data-orangtua" element={<DataOrangTua />} />
-          <Route path="/tambah-data-anggota" element={<AddMemberForm />} />
-          <Route path="/edit-data/:id" element={<EditMemberForm />} />
+          <Route
+            path="/events"
+            element={
+              <PrivateRoute>
+                <EventSchedule />
+              </PrivateRoute>
+            }
+          />
           <Route path="/sign-in" element={<SignInForm />} />
           <Route path="/sign-up" element={<SignUpForm />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/data-anak" element={<DataAnak />} />
-          <Route path="/tambah-data-anak" element={<AddChildForm />} />
-          <Route path="/edit-data-anak/:id" element={<EditFormChild />} />
+
+          {/* Protected routes for admin only */}
+          <Route
+            path="/data-orangtua"
+            element={
+              <PrivateRoute role="admin">
+                <DataOrangTua />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/tambah-data-anggota"
+            element={
+              <PrivateRoute role="admin">
+                <AddMemberForm />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/edit-data/:id"
+            element={
+              <PrivateRoute role="admin">
+                <EditMemberForm />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/data-anak"
+            element={
+              <PrivateRoute role="admin">
+                <DataAnak />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/tambah-data-anak"
+            element={
+              <PrivateRoute role="admin">
+                <AddChildForm />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/edit-data-anak/:id"
+            element={
+              <PrivateRoute role="admin">
+                <EditFormChild />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/manage-events"
+            element={
+              <PrivateRoute role="admin">
+                <ManageEvents />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Appshell>
     </Router>

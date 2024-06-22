@@ -3,7 +3,9 @@ import Swal from "sweetalert2";
 import { supabase } from "@/client/supabaseClient";
 import Avatar from "@assets/icons/avatar.png";
 import Dotbutton from "@assets/icons/dot-button.svg";
-import { Link } from "react-router-dom"; // Import Link
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import { Link } from "react-router-dom";
 
 const DisplayChildren = () => {
   const [children, setChildren] = useState([]);
@@ -15,24 +17,23 @@ const DisplayChildren = () => {
 
   useEffect(() => {
     const fetchChildren = async () => {
+      const token = Cookies.get("user_session");
+      const decodedToken = jwtDecode(token);
+      const adminId = decodedToken.id;
+
       const { data, error } = await supabase
         .from("anak")
         .select(
-          "id, nama, alamat, usia, jenis_kelamin, foto, dibuat_pada, id_orangtua, orangtua (nama)"
+          `id, nama, alamat, usia, jenis_kelamin, foto, dibuat_pada, id_orangtua, orangtua (nama)`
         )
+        .eq("admin_id", adminId)
         .order("dibuat_pada", { ascending: false });
 
       if (error) {
         console.error("Error fetching children data:", error.message);
-        Swal.fire({
-          title: "Error",
-          text: "Gagal mengambil data anak!",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      } else {
+      } else if (data) {
         setChildren(data);
-        setFilteredChildren(data); // Initialize filtered children
+        setFilteredChildren(data);
       }
       setLoading(false);
     };
@@ -82,7 +83,7 @@ const DisplayChildren = () => {
         setIsDeleting(false);
       } else {
         if (foto) {
-          const photoName = `profile-anak/${foto.split("/").pop()}`; // Extract the file name from the path and prefix with 'profile-anak/'
+          const photoName = `profile-anak/${foto.split("/").pop()}`;
           const { error: deleteError } = await supabase.storage
             .from("images")
             .remove([photoName]);
@@ -126,10 +127,6 @@ const DisplayChildren = () => {
     );
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="container h-auto px-4 py-8 mx-auto border-2">
       <h2 className="py-2 mb-6 text-2xl font-bold text-center rounded-md text-accent-800 bg-success-300">
@@ -139,18 +136,43 @@ const DisplayChildren = () => {
         type="text"
         value={searchQuery}
         onChange={handleSearch}
-        className="w-full p-2 mb-6 border rounded"
+        className="w-full p-2 mb-6 border-2 border-gray-300 rounded-md focus:border-success-400 focus:outline-none"
         placeholder="Cari anak atau wali..."
       />
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredChildren.length === 0 ? (
-          <div className="col-span-full h-[20rem] flex justify-center items-center text-gray-600">
-            <h1 className="w-[25rem] text-center text-xl text-slate-400">
-              Belum ada data yang tersedia , silahkan tambahkan data anak.
-            </h1>
-          </div>
-        ) : (
-          filteredChildren.map((child) => (
+      {loading ? (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="p-4 bg-white rounded-lg shadow-md">
+              <div className="flex items-center mb-4">
+                <div className="w-16 h-16 bg-gray-300 rounded-full skeleton"></div>
+                <div className="ml-4 flex flex-col space-y-2">
+                  <div className="w-32 h-4 bg-gray-300 skeleton"></div>
+                  <div className="w-24 h-4 bg-gray-300 skeleton"></div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="w-full h-4 bg-gray-300 skeleton"></div>
+                <div className="w-full h-4 bg-gray-300 skeleton"></div>
+                <div className="w-full h-4 bg-gray-300 skeleton"></div>
+                <div className="w-full h-4 bg-gray-300 skeleton"></div>
+              </div>
+              <div className="flex justify-between mt-4">
+                <div className="w-20 h-8 bg-gray-300 skeleton"></div>
+                <div className="w-20 h-8 bg-gray-300 skeleton"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredChildren.length === 0 ? (
+        <div className="text-center h-[32rem] flex justify-center items-center text-gray-600">
+          <h1 className="w-[25rem] text-xl text-slate-400">
+            Belum ada data yang tersedia yang ditambahkan, silahkan tambahkan
+            data anak.
+          </h1>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredChildren.map((child) => (
             <div
               key={child.id}
               className="relative p-4 bg-white rounded-lg shadow-md"
@@ -204,13 +226,13 @@ const DisplayChildren = () => {
                   )}
                 </div>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="mb-2 text-sm text-gray-600">
                 Dibuat pada: {new Date(child.dibuat_pada).toLocaleDateString()}
               </p>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

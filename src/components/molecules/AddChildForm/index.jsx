@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/client/supabaseClient";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import Cookies from "js-cookie";
 
 const CDNURL =
   "https://kqwhwlnyvahaddispubu.supabase.co/storage/v1/object/public/images/";
@@ -30,9 +31,12 @@ const AddChildForm = () => {
 
   useEffect(() => {
     const fetchParents = async () => {
+      const token = Cookies.get("user_session");
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
       const { data, error } = await supabase
         .from("orangtua")
-        .select("id, nama");
+        .select("id, nama")
+        .eq("admin_id", decodedToken.id);
 
       if (error) {
         console.error("Error fetching parents:", error.message);
@@ -159,20 +163,29 @@ const AddChildForm = () => {
       setIsSubmitting(true);
 
       // Check if NIK already exists in either orangtua or anak table
-      const { data: existingNikInOrangtua } = await supabase
-        .from("orangtua")
-        .select("nik")
-        .eq("nik", formData.nik);
+      const { data: existingNikInOrangtua, error: errorNikInOrangtua } =
+        await supabase.from("orangtua").select("nik").eq("nik", formData.nik);
 
-      const { data: existingNikInAnak } = await supabase
+      const { data: existingNikInAnak, error: errorNikInAnak } = await supabase
         .from("anak")
         .select("nik")
         .eq("nik", formData.nik);
 
+      if (errorNikInOrangtua || errorNikInAnak) {
+        Swal.fire({
+          title: "Error",
+          text: "Gagal memeriksa NIK!",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       if (existingNikInOrangtua.length > 0 || existingNikInAnak.length > 0) {
         Swal.fire({
           title: "Error",
-          text: "NIK sudah terdaftar di orang tua atau anak!",
+          text: "NIK sudah terdaftar!",
           icon: "error",
           confirmButtonText: "OK",
         });
@@ -191,6 +204,9 @@ const AddChildForm = () => {
         }
       }
 
+      const token = Cookies.get("user_session");
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
+
       const { nama, nik, id_orangtua, alamat, usia, jenis_kelamin } = formData;
 
       const { error } = await supabase.from("anak").insert([
@@ -202,6 +218,7 @@ const AddChildForm = () => {
           usia,
           jenis_kelamin,
           foto: fotoUrl,
+          admin_id: decodedToken.id,
         },
       ]);
 

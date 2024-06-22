@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Swal from "sweetalert2";
 import { supabase } from "@/client/supabaseClient";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
+import { jwtDecode } from "jwt-decode";
 
 const CDNURL =
   "https://kqwhwlnyvahaddispubu.supabase.co/storage/v1/object/public/images/";
@@ -17,11 +21,14 @@ const AddMemberForm = () => {
     jenis_kelamin: "",
     nomor_telepon: "",
     email: "",
+    password: "",
+    role: "user",
   });
 
   const [photoPreview, setPhotoPreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -75,8 +82,16 @@ const AddMemberForm = () => {
   };
 
   const validateForm = () => {
-    const { nama, nik, alamat, usia, jenis_kelamin, nomor_telepon, email } =
-      formData;
+    const {
+      nama,
+      nik,
+      alamat,
+      usia,
+      jenis_kelamin,
+      nomor_telepon,
+      email,
+      password,
+    } = formData;
     const newErrors = {};
     if (!nama) newErrors.nama = "Nama harus diisi!";
     if (!nik) {
@@ -103,6 +118,11 @@ const AddMemberForm = () => {
       newErrors.email = "Email harus diisi!";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = "Email tidak valid!";
+    }
+    if (!password) {
+      newErrors.password = "Password harus diisi!";
+    } else if (password.length < 6) {
+      newErrors.password = "Password harus lebih dari 6 karakter!";
     }
 
     setErrors(newErrors);
@@ -141,55 +161,83 @@ const AddMemberForm = () => {
         }
       }
 
-      const { error } = await supabase.from("orangtua").insert([
-        {
-          nama: formData.nama,
-          nik: formData.nik,
-          foto: fotoUrl,
-          alamat: formData.alamat,
-          usia: formData.usia,
-          jenis_kelamin: formData.jenis_kelamin,
-          nomor_telepon: formData.nomor_telepon,
-          email: formData.email,
-        },
-      ]);
+      try {
+        // Enkripsi password
+        const hashedPassword = CryptoJS.SHA256(formData.password).toString();
 
-      if (error) {
-        if (error.code === "23505") {
-          // NIK atau email sudah terdaftar
-          if (fotoUrl) {
-            // Hapus foto yang sudah terunggah
-            await supabase.storage
-              .from("images")
-              .remove([fotoUrl.replace(CDNURL, "")]);
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .insert([
+            {
+              email: formData.email,
+              password: hashedPassword,
+              role: "user",
+            },
+          ])
+          .select();
+
+        if (userError) {
+          if (userError.code === "23505") {
+            if (fotoUrl) {
+              await supabase.storage
+                .from("images")
+                .remove([fotoUrl.replace(CDNURL, "")]);
+            }
+            Swal.fire({
+              title: "Error",
+              text: "Email sudah terdaftar!",
+              icon: "error",
+              confirmButtonText: "OK",
+            });
+          } else {
+            throw userError;
           }
-          Swal.fire({
-            title: "Error",
-            text: "NIK atau email sudah terdaftar!",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
         } else {
-          console.error("Error inserting data:", error);
+          const userId = userData[0].id;
+          const token = Cookies.get("user_session");
+          const decodedToken = jwtDecode(token);
+          const adminId = decodedToken.id;
+
+          const { error: orangtuaError } = await supabase
+            .from("orangtua")
+            .insert([
+              {
+                nama: formData.nama,
+                nik: formData.nik,
+                foto: fotoUrl,
+                alamat: formData.alamat,
+                usia: formData.usia,
+                jenis_kelamin: formData.jenis_kelamin,
+                nomor_telepon: formData.nomor_telepon,
+                user_id: userId,
+                admin_id: adminId,
+              },
+            ]);
+
+          if (orangtuaError) {
+            throw orangtuaError;
+          }
+
           Swal.fire({
-            title: "Error",
-            text: "Gagal menambahkan data!",
-            icon: "error",
+            title: "Berhasil",
+            text: "Data berhasil ditambahkan!",
+            icon: "success",
             confirmButtonText: "OK",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              navigate("/data-orangtua");
+            }
           });
         }
-        setIsSubmitting(false);
-      } else {
+      } catch (error) {
+        console.error("Error inserting data:", error);
         Swal.fire({
-          title: "Berhasil",
-          text: "Data berhasil ditambahkan!",
-          icon: "success",
+          title: "Error",
+          text: "Gagal menambahkan data!",
+          icon: "error",
           confirmButtonText: "OK",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            navigate("/data-orangtua");
-          }
         });
+      } finally {
         setIsSubmitting(false);
       }
     }
@@ -197,6 +245,10 @@ const AddMemberForm = () => {
 
   const handleCancel = () => {
     navigate("/data-orangtua");
+  };
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -250,6 +302,35 @@ const AddMemberForm = () => {
             />
             {errors.email && (
               <span className="text-red-500 text-sm">{errors.email}</span>
+            )}
+          </div>
+          <div className="form-control mb-4">
+            <label className="label">
+              <span className="label-text">Password</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className="input input-bordered w-full"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                onClick={toggleShowPassword}
+              >
+                {showPassword ? (
+                  <FaEyeSlash className="h-5 w-5 text-gray-500" />
+                ) : (
+                  <FaEye className="h-5 w-5 text-gray-500" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <span className="text-red-500 text-sm">{errors.password}</span>
             )}
           </div>
           <div className="form-control mb-4">
