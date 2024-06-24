@@ -3,7 +3,7 @@ import React from "react";
 
 const EventTempTemp = () => {
   return (
-    <div className="py-20 mx-auto font-poppins ">
+    <div className="h-screen py-20 mx-auto font-poppins ">
       <EventSchedule />
     </div>
   );

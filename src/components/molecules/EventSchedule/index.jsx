@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/client/supabaseClient";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import dayjs from "dayjs";
+import "dayjs/locale/id"; // import locale Indonesia
+import localizedFormat from "dayjs/plugin/localizedFormat";
+
+dayjs.extend(localizedFormat);
+dayjs.locale("id");
 
 const EventSchedule = () => {
   const [events, setEvents] = useState([]);
@@ -35,7 +41,6 @@ const EventSchedule = () => {
 
       console.log("User ID:", userId);
 
-      // Ambil role dari tabel users
       const { data: user, error: userError } = await supabase
         .from("users")
         .select("role")
@@ -54,7 +59,6 @@ const EventSchedule = () => {
       if (role === "admin") {
         adminId = userId;
       } else {
-        // Jika pengguna bukan admin, ambil admin_id dari tabel orangtua berdasarkan user_id
         const { data: orangtua, error: orangtuaError } = await supabase
           .from("orangtua")
           .select("admin_id")
@@ -123,14 +127,17 @@ const EventSchedule = () => {
           </h1>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="h-[8rem] grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {events.map((event) => (
-            <div key={event.id} className="p-4 bg-white rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold">{event.title}</h3>
-              <p className="text-gray-600">
-                {new Date(event.date).toLocaleDateString()}
+            <div
+              key={event.id}
+              className="p-4 bg-white rounded-lg shadow-md relative"
+            >
+              <h3 className="text-xl mb-2 font-semibold">{event.title}</h3>
+              <p className="text-gray-600 mb-2">{event.description}</p>
+              <p className="text-gray-600 absolute bottom-2 right-2">
+                {dayjs(event.date).format("dddd, D MMMM YYYY")}
               </p>
-              <p className="text-gray-600">{event.description}</p>
             </div>
           ))}
         </div>

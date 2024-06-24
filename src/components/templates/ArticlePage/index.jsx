@@ -1,13 +1,21 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const ArticlePage = () => {
   const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    fetchArticle(id);
+  }, [id]);
+
+  const fetchArticle = (articleId) => {
+    setLoading(true);
+
     axios
       .get(`https://health.gov/myhealthfinder/api/v3/topicsearch.json?lang=en`)
       .then((response) => {
@@ -18,11 +26,11 @@ const ArticlePage = () => {
           response.data.Result.Resources.Resource
         ) {
           const articles = response.data.Result.Resources.Resource;
-          const foundArticle = articles.find((res) => res.Id === id);
+          const foundArticle = articles.find((res) => res.Id === articleId);
           setArticle(foundArticle);
 
           // Shuffle articles except the current one
-          const otherArticles = articles.filter((res) => res.Id !== id);
+          const otherArticles = articles.filter((res) => res.Id !== articleId);
           const shuffledArticles = otherArticles
             .sort(() => 0.5 - Math.random())
             .slice(0, 5);
@@ -31,8 +39,11 @@ const ArticlePage = () => {
       })
       .catch((error) => {
         console.error("Error fetching the article:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  }, [id]);
+  };
 
   const getRandomHealthImage = () => {
     return `https://picsum.photos/800/400?random=${Math.floor(
@@ -40,10 +51,29 @@ const ArticlePage = () => {
     )}`;
   };
 
-  if (!article) {
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        Loading...
+      <div className="container mx-auto pt-32 p-6 flex flex-col lg:flex-row">
+        <div className="article-content lg:w-3/4 pr-6">
+          <div className="animate-pulse">
+            <div className="h-10 bg-gray-300 rounded w-3/4 mb-4"></div>
+            <div className="h-64 bg-gray-300 rounded mb-4"></div>
+            <div className="h-6 bg-gray-300 rounded w-full mb-2"></div>
+            <div className="h-6 bg-gray-300 rounded w-5/6 mb-2"></div>
+            <div className="h-6 bg-gray-300 rounded w-4/5 mb-2"></div>
+          </div>
+        </div>
+        <div className="related-articles lg:w-1/4 mt-8 lg:mt-0">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-300 rounded w-3/4 mb-4"></div>
+            {[...Array(5)].map((_, index) => (
+              <div
+                key={index}
+                className="h-6 bg-gray-300 rounded w-full mb-2"
+              ></div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -82,6 +112,10 @@ const ArticlePage = () => {
               <Link
                 to={`/artikel-kesehatan/${relatedArticle.Id}`}
                 className="text-blue-500 hover:underline"
+                onClick={() => {
+                  setLoading(true); // Show skeleton loading
+                  navigate(`/artikel-kesehatan/${relatedArticle.Id}`);
+                }}
               >
                 {relatedArticle.Title}
               </Link>

@@ -136,11 +136,10 @@ const VisitHistory = ({ childId }) => {
             {visit.aktivitas_imunisasi && (
               <>
                 <p className="text-gray-600">
-                  <strong>Aktivitas Imunisasi:</strong>{" "}
-                  {visit.aktivitas_imunisasi}
+                  <strong>Aktivitas:</strong> {visit.aktivitas_imunisasi}
                 </p>
                 <p className="text-gray-600">
-                  <strong>Status Imunisasi:</strong> {visit.status_imunisasi}
+                  <strong>Status:</strong> {visit.status_imunisasi}
                 </p>
               </>
             )}

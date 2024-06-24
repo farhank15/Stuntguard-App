@@ -14,7 +14,7 @@ const Clustering = () => {
           Penggolongan Kondisi Anak
         </h1>
       </div>
-      <div className="flex flex-wrap justify-center px-10">
+      <div className="flex flex-wrap justify-center px-5">
         <Golongan1 />
         <Golongan2 />
         <Golongan3 />

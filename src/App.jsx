@@ -3,8 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Appshell from "@components/templates/Appshell";
 import Home from "@pages/home";
 import About from "./components/templates/About";
-import ArticlePage from "./components/templates/ArticlePage";
-import ArticleList from "./components/templates/ArticleList";
 import KalkulatorGizi from "./pages/KalkulatorGizi";
 import AddMemberForm from "./components/molecules/AddMemberForm";
 import EditMemberForm from "./components/molecules/EditMemberForm";
@@ -23,6 +21,9 @@ import AddRekapMedisPosyandu from "./pages/AddRekapMedisPosyandu";
 import DashboardUser from "./pages/DashboardUser";
 import ChildDetail from "./pages/ChildDetail";
 import AdminDashboard from "./pages/AdminDashboard";
+import LogAktivitas from "./pages/LogAktivitas";
+import ArtikelKesehatan from "./pages/ArticleKesehatan";
+import ArtikelPage from "./pages/ArtikelPages";
 
 function App() {
   return (
@@ -31,8 +32,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/artikel-kesehatan" element={<ArticleList />} />
-          <Route path="/artikel-kesehatan/:id" element={<ArticlePage />} />
+          <Route path="/artikel-kesehatan" element={<ArtikelKesehatan />} />
+          <Route path="/artikel-kesehatan/:id" element={<ArtikelPage />} />
           <Route path="/kalkulator-gizi" element={<KalkulatorGizi />} />
           <Route path="/sign-in" element={<SignInForm />} />
           <Route path="/sign-up" element={<SignUpForm />} />
@@ -142,6 +143,14 @@ function App() {
             element={
               <PrivateRoute role="admin">
                 <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/log-aktivitas"
+            element={
+              <PrivateRoute role="admin">
+                <LogAktivitas />
               </PrivateRoute>
             }
           />

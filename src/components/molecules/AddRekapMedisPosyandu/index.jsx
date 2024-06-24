@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/client/supabaseClient";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const AddRekapMedisPosyandu = () => {
   const { id } = useParams();
@@ -13,6 +15,7 @@ const AddRekapMedisPosyandu = () => {
   const [statusImunisasi, setStatusImunisasi] = useState("");
   const [growthData, setGrowthData] = useState([]);
   const [anakData, setAnakData] = useState({});
+  const [aktivitasList, setAktivitasList] = useState([]);
 
   useEffect(() => {
     const fetchGrowthData = async () => {
@@ -40,8 +43,46 @@ const AddRekapMedisPosyandu = () => {
       }
     };
 
+    const fetchAktivitasList = async () => {
+      const token = Cookies.get("user_session");
+      if (!token) {
+        console.error("Token tidak ditemukan");
+        return;
+      }
+
+      let decodedToken;
+      try {
+        decodedToken = jwtDecode(token);
+        console.log("Decoded token:", decodedToken);
+      } catch (error) {
+        console.error("Error decoding token:", error.message);
+        return;
+      }
+
+      const adminId = decodedToken.id;
+      if (!adminId) {
+        console.error("Admin ID tidak ditemukan dalam token");
+        return;
+      }
+
+      console.log("Admin ID:", adminId);
+
+      const { data, error } = await supabase
+        .from("log_aktivitas")
+        .select("*")
+        .eq("admin_id", adminId);
+
+      if (error) {
+        console.error("Error fetching aktivitas list:", error.message);
+      } else {
+        console.log("Fetched aktivitas:", data);
+        setAktivitasList(data);
+      }
+    };
+
     fetchGrowthData();
     fetchAnakData();
+    fetchAktivitasList();
   }, [id]);
 
   const calculateStatusAndColor = (usia, tinggiBadan, beratBadan, gender) => {
@@ -182,12 +223,18 @@ const AddRekapMedisPosyandu = () => {
         </div>
         <div className="form-control md:col-span-2">
           <label className="label text-gray-700">Aktivitas Posyandu</label>
-          <input
-            type="text"
+          <select
             value={aktivitasImunisasi}
             onChange={(e) => setAktivitasImunisasi(e.target.value)}
-            className="input input-bordered"
-          />
+            className="select select-bordered"
+          >
+            <option value="">Pilih Aktivitas</option>
+            {aktivitasList.map((aktivitas) => (
+              <option key={aktivitas.id} value={aktivitas.aktivitas}>
+                {aktivitas.aktivitas}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="form-control md:col-span-2">
           <label className="label text-gray-700">Status Aktivitas</label>

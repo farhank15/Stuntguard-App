@@ -139,6 +139,11 @@ const Navbar = () => {
                           Data Orang Tua
                         </Link>
                       </li>
+                      <li>
+                        <Link to="/log-aktivitas" onClick={handleLinkClick}>
+                          Log Aktivitas
+                        </Link>
+                      </li>
                     </>
                   )}
                 </ul>
@@ -156,7 +161,7 @@ const Navbar = () => {
               {isAdmin && (
                 <li>
                   <Link to="/manage-events" onClick={handleLinkClick}>
-                    Manage Events
+                    Manage Acara
                   </Link>
                 </li>
               )}
@@ -206,6 +211,11 @@ const Navbar = () => {
                           Data Orang Tua
                         </Link>
                       </li>
+                      <li>
+                        <Link to="/log-aktivitas" onClick={handleLinkClick}>
+                          Log Aktivitas
+                        </Link>
+                      </li>
                     </>
                   )}
                 </ul>
@@ -225,7 +235,7 @@ const Navbar = () => {
           {isAdmin && (
             <li>
               <Link to="/manage-events" onClick={handleLinkClick}>
-                Manage Events
+                Manage Acara
               </Link>
             </li>
           )}
