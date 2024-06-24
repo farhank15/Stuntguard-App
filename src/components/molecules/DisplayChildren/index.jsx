@@ -194,13 +194,6 @@ const DisplayChildren = () => {
                   {activeMenu === child.id && (
                     <div className="absolute right-0 z-10 w-48 mt-2 bg-white border rounded-lg shadow-md">
                       <Link
-                        to={`/detail/${child.id}`}
-                        className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                      >
-                        Detail
-                      </Link>
-
-                      <Link
                         to={`/rekap/${child.id}`}
                         className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                       >

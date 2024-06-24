@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { v4 as uuidv4 } from "uuid";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import Avatar from "@assets/icons/avatar.png"; // Import avatar default
 
 const CDNURL =
   "https://kqwhwlnyvahaddispubu.supabase.co/storage/v1/object/public/images/";
@@ -24,6 +25,7 @@ const EditChildForm = () => {
     foto: null,
   });
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [previousPhotoUrl, setPreviousPhotoUrl] = useState(null);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,7 +62,8 @@ const EditChildForm = () => {
           ...anak,
           foto: null,
         });
-        setPhotoPreview(anak.foto);
+        setPhotoPreview(anak.foto || Avatar);
+        setPreviousPhotoUrl(anak.foto);
         setParents(orangtua);
         setFilteredParents(orangtua);
       }
@@ -97,7 +100,7 @@ const EditChildForm = () => {
           ...formData,
           [name]: null,
         });
-        setPhotoPreview(null);
+        setPhotoPreview(Avatar);
       }
     } else {
       setFormData({
@@ -163,6 +166,21 @@ const EditChildForm = () => {
     return `${CDNURL}${fileName}`;
   };
 
+  const deleteImage = async (fileUrl) => {
+    const fileName = fileUrl.replace(CDNURL, "");
+    const { error } = await supabase.storage.from("images").remove([fileName]);
+
+    if (error) {
+      console.error("Error deleting image:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Gagal menghapus gambar!",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -190,15 +208,23 @@ const EditChildForm = () => {
         return;
       }
 
-      let fotoUrl = photoPreview;
+      let fotoUrl = previousPhotoUrl;
       if (formData.foto) {
         const uploadedUrl = await uploadImage(formData.foto);
         if (uploadedUrl) {
+          if (previousPhotoUrl) {
+            await deleteImage(previousPhotoUrl);
+          }
           fotoUrl = uploadedUrl;
         } else {
           setIsSubmitting(false);
           return;
         }
+      } else if (photoPreview === Avatar) {
+        if (previousPhotoUrl) {
+          await deleteImage(previousPhotoUrl);
+        }
+        fotoUrl = null;
       }
 
       const { nama, nik, id_orangtua, alamat, usia, jenis_kelamin } = formData;
@@ -244,10 +270,6 @@ const EditChildForm = () => {
   const handleCancel = () => {
     navigate("/data-anak");
   };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="flex items-center justify-center px-2 py-40 bg-gray-100">
@@ -301,7 +323,9 @@ const EditChildForm = () => {
                 onChange={handleChange}
               />
               <label htmlFor="foto" className="cursor-pointer btn btn-primary">
-                {photoPreview ? "Ganti Foto" : "Pilih Foto"}
+                {photoPreview && photoPreview !== Avatar
+                  ? "Ganti Foto"
+                  : "Pilih Foto"}
               </label>
               {photoPreview && (
                 <img
@@ -310,11 +334,21 @@ const EditChildForm = () => {
                   className="object-cover w-16 h-16 ml-4 rounded-full"
                 />
               )}
-              {photoPreview && (
+              {photoPreview && photoPreview !== Avatar && (
                 <button
                   type="button"
                   className="ml-4 btn btn-danger"
-                  onClick={() => setPhotoPreview(null)}
+                  onClick={async () => {
+                    if (previousPhotoUrl) {
+                      await deleteImage(previousPhotoUrl);
+                    }
+                    setPhotoPreview(Avatar);
+                    setFormData({
+                      ...formData,
+                      foto: null,
+                    });
+                    setPreviousPhotoUrl(null);
+                  }}
                 >
                   Hapus Foto
                 </button>
@@ -428,7 +462,7 @@ const EditChildForm = () => {
               className="px-8 btn btn-primary"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Mengupdate..." : "Update"}
+              {isSubmitting ? "menyimpan..." : "simpan"}
             </button>
           </div>
         </form>

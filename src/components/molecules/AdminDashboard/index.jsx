@@ -198,7 +198,9 @@ const AdminDashboard = () => {
         </div>
       </div>
       <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">Filter Grafik</h3>
+        <h3 className="text-xl font-semibold mb-4">
+          Grafik Pertumbuhan Rata-rata Anak
+        </h3>
         <div className="form-control">
           <label className="label">Tahun</label>
           <select
@@ -215,10 +217,7 @@ const AdminDashboard = () => {
         </div>
       </div>
       <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">
-          Grafik Pertumbuhan Rata-rata Anak
-        </h3>
-        <div className="w-full h-96">
+        <div className="h-96 mt-14 md:h-[45rem]">
           <Line
             data={chartData}
             options={{ responsive: true, maintainAspectRatio: false }}

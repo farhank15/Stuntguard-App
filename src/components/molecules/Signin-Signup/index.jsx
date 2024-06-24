@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import Avatar from "react-avatar";
 import Swal from "sweetalert2";
-import { jwtDecode } from "jwt-decode"; // Pastikan modul ini diimpor
+import { jwtDecode } from "jwt-decode";
 
 const SigninSignup = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -49,7 +49,7 @@ const SigninSignup = () => {
       showConfirmButton: false,
     }).then(() => {
       navigate("/");
-      window.location.reload(); // Tambahkan ini untuk merefresh halaman
+      window.location.reload();
     });
   };
 
@@ -71,7 +71,11 @@ const SigninSignup = () => {
             <ul className="absolute right-0 mt-2 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
               <li>
                 <Link
-                  to={`/dashboard/${userData.id}`}
+                  to={
+                    userData.role === "admin"
+                      ? `/admin-dashboard/${userData.id}`
+                      : `/dashboard/${userData.id}`
+                  }
                   className="justify-between"
                   onClick={() => setIsDropdownOpen(false)}
                 >

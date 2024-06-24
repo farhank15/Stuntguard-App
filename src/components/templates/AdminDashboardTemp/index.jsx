@@ -3,7 +3,7 @@ import React from "react";
 
 const AdminDashboardTemp = () => {
   return (
-    <div>
+    <div className="pt-20 pb-20 font-poppins">
       <AdminDashboard />
     </div>
   );
