@@ -6,7 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import CryptoJS from "crypto-js";
 
-const SignInFormTemp = () => {
+const SignInForm = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -114,7 +114,7 @@ const SignInFormTemp = () => {
           timer: 1500,
           showConfirmButton: false,
         }).then(() => {
-          Cookies.set("user_session", token);
+          Cookies.set("user_session", token, { expires: 1 / 24 }); // Token expires in 1 hour
           navigate("/");
           window.location.reload();
         });
@@ -226,4 +226,4 @@ const SignInFormTemp = () => {
   );
 };
 
-export default SignInFormTemp;
+export default SignInForm;

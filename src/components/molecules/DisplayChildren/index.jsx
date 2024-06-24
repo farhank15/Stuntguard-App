@@ -128,7 +128,7 @@ const DisplayChildren = () => {
   };
 
   return (
-    <div className="container h-auto px-4 py-8 mx-auto border-2">
+    <div className="container min-h-[30rem] px-4 py-8 mx-auto border-2 rounded-xl overflow-auto">
       <h2 className="py-2 mb-6 text-2xl font-bold text-center rounded-md text-accent-800 bg-success-300">
         Daftar Anak
       </h2>
@@ -154,11 +154,10 @@ const DisplayChildren = () => {
           ))}
         </div>
       ) : filteredChildren.length === 0 ? (
-        <div className="text-center h-[32rem] flex justify-center items-center text-gray-600">
-          <h1 className="w-[25rem] text-xl text-slate-400">
-            Belum ada data yang tersedia yang ditambahkan, silahkan tambahkan
-            data anak.
-          </h1>
+        <div className="flex justify-center items-center h-[32rem]">
+          <h3 className="text-xl text-gray-500">
+            Belum ada data yang tersedia. Silahkan tambahkan data anak.
+          </h3>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

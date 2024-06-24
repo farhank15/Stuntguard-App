@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import Avatar from "@assets/icons/avatar.png";
 import GrafikPertumbuhan from "../GrafikPertumbuhan";
+import Swal from "sweetalert2";
 
 const RekapPosyandu = () => {
   const { id } = useParams();
@@ -118,6 +119,43 @@ const RekapPosyandu = () => {
     return date.toLocaleDateString("id-ID", options);
   };
 
+  const handleDeleteRekap = async (rekapId) => {
+    const confirmResult = await Swal.fire({
+      title: "Apakah Anda yakin?",
+      text: "Rekap ini akan dihapus!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, hapus!",
+      cancelButtonText: "Batal",
+    });
+
+    if (confirmResult.isConfirmed) {
+      const { error } = await supabase
+        .from("rekam_medis_posyandu")
+        .delete()
+        .eq("id", rekapId);
+      if (error) {
+        console.error("Error deleting rekap:", error.message);
+        Swal.fire({
+          title: "Error",
+          text: "Gagal menghapus rekap!",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      } else {
+        setRekap(rekap.filter((item) => item.id !== rekapId));
+        Swal.fire({
+          title: "Berhasil",
+          text: "Rekap berhasil dihapus!",
+          icon: "success",
+          confirmButtonText: "OK",
+          timer: 2000,
+          timerProgressBar: true,
+        });
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="container h-auto px-4 py-8 mx-auto border-2">
@@ -229,24 +267,34 @@ const RekapPosyandu = () => {
             filteredRekap.map((rekapItem) => (
               <div
                 key={rekapItem.id}
-                className="bg-white p-6 rounded-lg shadow-md relative"
+                className="bg-white p-6 rounded-lg shadow-md relative flex flex-col justify-between"
               >
                 <div
                   className="w-4 h-4 border-2 border-slate-400 rounded-full absolute top-4 right-4"
                   style={{ backgroundColor: rekapItem.warna_heksa }}
                 ></div>
-                <p className="font-semibold mb-2">
-                  {getDayName(rekapItem.tanggal_kunjungan)}
-                </p>
-                <p>Tinggi Badan: {rekapItem.tinggi_badan} cm</p>
-                <p>Berat Badan: {rekapItem.berat_badan} kg</p>
-                <p>Status: {rekapItem.status}</p>
-                {rekapItem.aktivitas_imunisasi && (
-                  <>
-                    <p>Aktivitas Imunisasi: {rekapItem.aktivitas_imunisasi}</p>
-                    <p>Status Imunisasi: {rekapItem.status_imunisasi}</p>
-                  </>
-                )}
+                <div>
+                  <p className="font-semibold mb-2">
+                    {getDayName(rekapItem.tanggal_kunjungan)}
+                  </p>
+                  <p>Tinggi Badan: {rekapItem.tinggi_badan} cm</p>
+                  <p>Berat Badan: {rekapItem.berat_badan} kg</p>
+                  <p>Status: {rekapItem.status}</p>
+                  {rekapItem.aktivitas_imunisasi && (
+                    <>
+                      <p>
+                        Aktivitas Imunisasi: {rekapItem.aktivitas_imunisasi}
+                      </p>
+                      <p>Status Imunisasi: {rekapItem.status_imunisasi}</p>
+                    </>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleDeleteRekap(rekapItem.id)}
+                  className="w-full p-2 mt-4 text-white bg-red-600 rounded-md hover:bg-red-700"
+                >
+                  Hapus
+                </button>
               </div>
             ))
           )}

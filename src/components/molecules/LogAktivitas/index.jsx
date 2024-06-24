@@ -79,9 +79,46 @@ const LogAktivitas = () => {
     setIsSubmitting(false);
   };
 
+  const handleDeleteActivity = async (id) => {
+    const confirmResult = await Swal.fire({
+      title: "Apakah Anda yakin?",
+      text: "Aktivitas ini akan dihapus!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, hapus!",
+      cancelButtonText: "Batal",
+    });
+
+    if (confirmResult.isConfirmed) {
+      const { error } = await supabase
+        .from("log_aktivitas")
+        .delete()
+        .eq("id", id);
+      if (error) {
+        console.error("Error deleting activity:", error.message);
+        Swal.fire({
+          title: "Error",
+          text: "Gagal menghapus aktivitas!",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      } else {
+        setActivities(activities.filter((activity) => activity.id !== id));
+        Swal.fire({
+          title: "Berhasil",
+          text: "Aktivitas berhasil dihapus!",
+          icon: "success",
+          confirmButtonText: "OK",
+          timer: 2000,
+          timerProgressBar: true,
+        });
+      }
+    }
+  };
+
   if (loading) {
     return (
-      <div className="container h-auto px-4 py-8 mx-auto border-2 rounded-xl">
+      <div className="container h-[30rem] px-4 py-8 mx-auto border-2 rounded-xl overflow-auto">
         <h2 className="py-2 mb-6 text-2xl font-bold text-center rounded-md text-accent-800 bg-success-300">
           Log Aktivitas
         </h2>
@@ -101,20 +138,42 @@ const LogAktivitas = () => {
   }
 
   return (
-    <div className="container h-auto px-4 py-8 mx-auto border-2 rounded-xl">
+    <div
+      className="container h-auto px-4 py-8 mx-auto border-2 rounded-xl overflow-auto"
+      style={{ minHeight: "30rem" }}
+    >
       <h2 className="py-2 mb-6 text-2xl font-bold text-center rounded-md text-accent-800 bg-success-300">
         Log Aktivitas
       </h2>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {activities.map((activity) => (
-          <div key={activity.id} className="p-4 bg-white rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold">{activity.aktivitas}</h3>
-            <p className="text-gray-600">
-              {dayjs(activity.tanggal).format("dddd, D MMMM YYYY")}
-            </p>
-          </div>
-        ))}
-      </div>
+      {activities.length === 0 ? (
+        <div className="text-center h-[30rem] flex justify-center items-center text-gray-600">
+          <h1 className="w-[25rem] text-xl text-slate-400">
+            Belum ada aktivitas yang ditambahkan.
+          </h1>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {activities.map((activity) => (
+            <div
+              key={activity.id}
+              className="p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="text-xl font-semibold">{activity.aktivitas}</h3>
+                <p className="text-gray-600">
+                  {dayjs(activity.tanggal).format("dddd, D MMMM YYYY")}
+                </p>
+              </div>
+              <button
+                onClick={() => handleDeleteActivity(activity.id)}
+                className="w-full p-2 mt-4 text-white bg-red-600 rounded-md hover:bg-red-700"
+              >
+                Hapus
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">

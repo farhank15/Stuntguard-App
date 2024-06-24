@@ -42,7 +42,7 @@ const DisplayMember = () => {
   const handleDelete = async (id, parentPhotoPath) => {
     const confirmResult = await Swal.fire({
       title: "Apakah Anda yakin?",
-      text: "Data anggota ini akan dihapus!",
+      text: "Data anggota ini akan dihapus beserta data anak yang terkait!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Ya, hapus!",
@@ -51,6 +51,7 @@ const DisplayMember = () => {
 
     if (confirmResult.isConfirmed) {
       try {
+        // Fetch the children associated with the parent
         const { data: children, error: fetchChildrenError } = await supabase
           .from("anak")
           .select("*")
@@ -62,33 +63,7 @@ const DisplayMember = () => {
           );
         }
 
-        const { error: deleteParentError } = await supabase
-          .from("orangtua")
-          .delete()
-          .eq("id", id);
-
-        if (deleteParentError) {
-          throw new Error(
-            "Gagal menghapus data anggota: " + deleteParentError.message
-          );
-        }
-
-        if (parentPhotoPath) {
-          const parentPhotoName = `profile-ortu/${parentPhotoPath
-            .split("/")
-            .pop()}`;
-          const { error: deleteParentPhotoError } = await supabase.storage
-            .from("images")
-            .remove([parentPhotoName]);
-
-          if (deleteParentPhotoError) {
-            throw new Error(
-              "Gagal menghapus foto orang tua: " +
-                deleteParentPhotoError.message
-            );
-          }
-        }
-
+        // Delete each child's photo and data
         for (const child of children) {
           if (child.foto) {
             const childPhotoName = `profile-anak/${child.foto
@@ -115,6 +90,35 @@ const DisplayMember = () => {
               "Gagal menghapus data anak: " + deleteChildError.message
             );
           }
+        }
+
+        // Delete the parent's photo
+        if (parentPhotoPath) {
+          const parentPhotoName = `profile-ortu/${parentPhotoPath
+            .split("/")
+            .pop()}`;
+          const { error: deleteParentPhotoError } = await supabase.storage
+            .from("images")
+            .remove([parentPhotoName]);
+
+          if (deleteParentPhotoError) {
+            throw new Error(
+              "Gagal menghapus foto orang tua: " +
+                deleteParentPhotoError.message
+            );
+          }
+        }
+
+        // Delete the parent's data
+        const { error: deleteParentError } = await supabase
+          .from("orangtua")
+          .delete()
+          .eq("id", id);
+
+        if (deleteParentError) {
+          throw new Error(
+            "Gagal menghapus data anggota: " + deleteParentError.message
+          );
         }
 
         setMembers(members.filter((member) => member.id !== id));
@@ -157,7 +161,10 @@ const DisplayMember = () => {
       {loading ? (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(4)].map((_, index) => (
-            <div key={index} className="p-4 bg-white rounded-lg shadow-md">
+            <div
+              key={index}
+              className="p-4 bg-white h-[20rem] rounded-lg shadow-md"
+            >
               <div className="flex items-center mb-4">
                 <div className="w-16 h-16 bg-gray-300 rounded-full skeleton"></div>
                 <div className="ml-4 flex flex-col space-y-2">
@@ -188,33 +195,38 @@ const DisplayMember = () => {
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredMembers.map((member) => (
-            <div key={member.id} className="p-4 bg-white rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <img
-                  src={member.foto ? member.foto : Avatar}
-                  alt="Avatar"
-                  className="object-cover w-16 h-16 rounded-full"
-                  onError={(e) => {
-                    e.target.src = Avatar;
-                  }}
-                />
-                <div className="ml-4">
-                  <h3 className="text-xl font-semibold">{member.nama}</h3>
-                  <p className="text-gray-600">{member.nik}</p>
+            <div
+              key={member.id}
+              className="flex flex-col justify-between p-4 bg-white rounded-lg shadow-md h-full"
+            >
+              <div>
+                <div className="flex items-center mb-4">
+                  <img
+                    src={member.foto ? member.foto : Avatar}
+                    alt="Avatar"
+                    className="object-cover w-16 h-16 rounded-full"
+                    onError={(e) => {
+                      e.target.src = Avatar;
+                    }}
+                  />
+                  <div className="ml-4">
+                    <h3 className="text-xl font-semibold">{member.nama}</h3>
+                    <p className="text-gray-600">{member.nik}</p>
+                  </div>
                 </div>
+                <p className="mb-2">
+                  <strong>Alamat:</strong> {member.alamat}
+                </p>
+                <p className="mb-2">
+                  <strong>Usia:</strong> {member.usia}
+                </p>
+                <p className="mb-2">
+                  <strong>Jenis Kelamin:</strong> {member.jenis_kelamin}
+                </p>
+                <p className="mb-2">
+                  <strong>Nomor Telepon:</strong> {member.nomor_telepon}
+                </p>
               </div>
-              <p className="mb-2">
-                <strong>Alamat:</strong> {member.alamat}
-              </p>
-              <p className="mb-2">
-                <strong>Usia:</strong> {member.usia}
-              </p>
-              <p className="mb-2">
-                <strong>Jenis Kelamin:</strong> {member.jenis_kelamin}
-              </p>
-              <p className="mb-2">
-                <strong>Nomor Telepon:</strong> {member.nomor_telepon}
-              </p>
               <div className="flex justify-between mt-4">
                 <Link
                   to={`/edit-data/${member.id}`}
