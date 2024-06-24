@@ -116,7 +116,24 @@ const ManageEvents = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="container h-auto px-4 py-8 mx-auto border-2 rounded-xl">
+        <h2 className="py-2 mb-6 text-2xl font-bold text-center rounded-md text-accent-800 bg-success-300">
+          Kelola Acara
+        </h2>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="p-4 bg-white rounded-lg shadow-md">
+              <div className="h-6 bg-gray-300 rounded mb-2 animate-pulse"></div>
+              <div className="h-4 bg-gray-300 rounded mb-2 animate-pulse"></div>
+              <div className="h-4 bg-gray-300 rounded mb-2 animate-pulse"></div>
+              <div className="h-4 bg-gray-300 rounded mb-2 animate-pulse"></div>
+              <div className="h-10 bg-gray-300 rounded mt-4 animate-pulse"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import Avatar from "react-avatar";
 import Swal from "sweetalert2";
+import { jwtDecode } from "jwt-decode"; // Pastikan modul ini diimpor
 
 const SigninSignup = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -14,9 +15,14 @@ const SigninSignup = () => {
   useEffect(() => {
     const token = Cookies.get("user_session");
     if (token) {
-      const decodedToken = JSON.parse(atob(token.split(".")[1]));
-      setUserData(decodedToken);
-      setIsLoggedIn(true);
+      try {
+        const decodedToken = jwtDecode(token);
+        setUserData(decodedToken);
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.error("Invalid token:", error);
+        setIsLoggedIn(false);
+      }
     }
 
     const handleClickOutside = (event) => {
@@ -65,7 +71,7 @@ const SigninSignup = () => {
             <ul className="absolute right-0 mt-2 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
               <li>
                 <Link
-                  to="/dashboard"
+                  to={`/dashboard/${userData.id}`}
                   className="justify-between"
                   onClick={() => setIsDropdownOpen(false)}
                 >

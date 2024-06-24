@@ -395,11 +395,11 @@ const AddChildForm = () => {
           </div>
           <div className="form-control mb-4">
             <label className="label">
-              <span className="label-text">Usia</span>
+              <span className="label-text">Usia (bulan)</span>
             </label>
             <input
               type="number"
-              name="usia"
+              name="usia (bulan)"
               className="input input-bordered w-full"
               value={formData.usia}
               onChange={handleChange}

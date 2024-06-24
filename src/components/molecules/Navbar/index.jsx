@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import SigninSignup from "@components/molecules/Signin-Signup";
 import Logo from "@assets/images/logos/stuntguard.svg";
 import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode"; // Fix import statement
+import { supabase } from "@/client/supabaseClient"; // Import supabase client
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -12,9 +13,10 @@ const Navbar = () => {
   const menuRef = useRef(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [newEvents, setNewEvents] = useState(false); // State to track new events
 
   useEffect(() => {
-    const token = Cookies.get("user_session"); // Adjust the cookie name to match your auth token cookie
+    const token = Cookies.get("user_session");
     if (token) {
       setIsAuthenticated(true);
       try {
@@ -26,6 +28,26 @@ const Navbar = () => {
         console.error("Invalid token:", error);
       }
     }
+
+    const fetchNewEvents = async () => {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error("Error fetching new events:", error.message);
+      } else if (data.length > 0) {
+        const latestEventDate = new Date(data[0].date);
+        const today = new Date();
+        if (latestEventDate >= today) {
+          setNewEvents(true);
+        }
+      }
+    };
+
+    fetchNewEvents();
 
     const handleDocumentClick = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -122,9 +144,12 @@ const Navbar = () => {
                 </ul>
               </li>
               {isAuthenticated && !isAdmin && (
-                <li>
+                <li className="relative">
                   <Link to="/events" onClick={handleLinkClick}>
                     Acara
+                    {newEvents && (
+                      <span className="absolute top-0 right-[8rem] block w-2 h-2 bg-green-500 rounded-full"></span>
+                    )}
                   </Link>
                 </li>
               )}
@@ -188,9 +213,12 @@ const Navbar = () => {
             </details>
           </li>
           {isAuthenticated && !isAdmin && (
-            <li>
+            <li className="relative">
               <Link to="/events" onClick={handleLinkClick}>
                 Acara
+                {newEvents && (
+                  <span className="absolute top-2 right-2 block w-2 h-2 bg-green-500 rounded-full"></span>
+                )}
               </Link>
             </li>
           )}

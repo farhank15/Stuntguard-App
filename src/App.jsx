@@ -18,6 +18,10 @@ import EditFormChild from "@/pages/EditFormChild";
 import EventSchedule from "./pages/EventSchedule";
 import ManageEvents from "./pages/ManageEvents";
 import PrivateRoute from "./utils/ProtectedRoute";
+import RekapPosyandu from "./pages/RekapPosyandu";
+import AddRekapMedisPosyandu from "./pages/AddRekapMedisPosyandu AddRekapMedisPosyandu";
+import DashboardUser from "./pages/DashboardUser";
+import ChildDetail from "./pages/ChildDetail";
 
 function App() {
   return (
@@ -29,6 +33,8 @@ function App() {
           <Route path="/artikel-kesehatan" element={<ArticleList />} />
           <Route path="/artikel-kesehatan/:id" element={<ArticlePage />} />
           <Route path="/kalkulator-gizi" element={<KalkulatorGizi />} />
+          <Route path="/dashboard/:id" element={<DashboardUser />} />
+          <Route path="/child/:id" element={<ChildDetail />} />
           <Route
             path="/events"
             element={
@@ -95,6 +101,22 @@ function App() {
             element={
               <PrivateRoute role="admin">
                 <ManageEvents />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/rekap/:id"
+            element={
+              <PrivateRoute role="admin">
+                <RekapPosyandu />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/form-rekap-medis-posyandu/:id"
+            element={
+              <PrivateRoute role="admin">
+                <AddRekapMedisPosyandu />
               </PrivateRoute>
             }
           />

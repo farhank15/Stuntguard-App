@@ -144,21 +144,11 @@ const DisplayChildren = () => {
           {[...Array(4)].map((_, index) => (
             <div key={index} className="p-4 bg-white rounded-lg shadow-md">
               <div className="flex items-center mb-4">
-                <div className="w-16 h-16 bg-gray-300 rounded-full skeleton"></div>
-                <div className="ml-4 flex flex-col space-y-2">
-                  <div className="w-32 h-4 bg-gray-300 skeleton"></div>
-                  <div className="w-24 h-4 bg-gray-300 skeleton"></div>
+                <div className="w-16 h-16 bg-gray-300 rounded-full animate-pulse"></div>
+                <div className="ml-4 flex-1">
+                  <div className="h-4 bg-gray-300 rounded mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <div className="w-full h-4 bg-gray-300 skeleton"></div>
-                <div className="w-full h-4 bg-gray-300 skeleton"></div>
-                <div className="w-full h-4 bg-gray-300 skeleton"></div>
-                <div className="w-full h-4 bg-gray-300 skeleton"></div>
-              </div>
-              <div className="flex justify-between mt-4">
-                <div className="w-20 h-8 bg-gray-300 skeleton"></div>
-                <div className="w-20 h-8 bg-gray-300 skeleton"></div>
               </div>
             </div>
           ))}
@@ -208,6 +198,13 @@ const DisplayChildren = () => {
                         className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                       >
                         Detail
+                      </Link>
+
+                      <Link
+                        to={`/rekap/${child.id}`}
+                        className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                      >
+                        Rekap Posyandu
                       </Link>
                       <Link
                         to={`/edit-data-anak/${child.id}`}
