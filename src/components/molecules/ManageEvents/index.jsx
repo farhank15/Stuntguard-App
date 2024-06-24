@@ -137,27 +137,35 @@ const ManageEvents = () => {
   }
 
   return (
-    <div className="container h-auto px-4 py-8 mx-auto border-2 rounded-xl">
-      <h2 className="py-2 mb-6 text-2xl font-bold text-center rounded-md text-accent-800 bg-success-300">
+    <div className="container min-h-[30rem] px-4 py-8 mx-auto border-2 rounded-xl overflow-auto">
+      <h2 className="py-2 mb-6 text-2xl  font-bold text-center rounded-md text-accent-800 bg-success-300">
         Kelola Acara
       </h2>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {events.map((event) => (
-          <div key={event.id} className="p-4 bg-white rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold">{event.title}</h3>
-            <p className="text-gray-600">
-              {dayjs(event.date).format("dddd, D MMMM YYYY")}
-            </p>
-            <p className="text-gray-600">{event.description}</p>
-            <button
-              onClick={() => handleDeleteEvent(event.id)}
-              className="w-full p-2 mt-4 text-white bg-red-600 rounded-md hover:bg-red-700"
-            >
-              Hapus
-            </button>
-          </div>
-        ))}
-      </div>
+      {events.length === 0 ? (
+        <div className="flex justify-center items-center h-[20rem]">
+          <h3 className="text-xl text-gray-500">
+            Belum ada acara yang dibuat.
+          </h3>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {events.map((event) => (
+            <div key={event.id} className="p-4 bg-white rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold">{event.title}</h3>
+              <p className="text-gray-600">
+                {dayjs(event.date).format("dddd, D MMMM YYYY")}
+              </p>
+              <p className="text-gray-600">{event.description}</p>
+              <button
+                onClick={() => handleDeleteEvent(event.id)}
+                className="w-full p-2 mt-4 text-white bg-red-600 rounded-md hover:bg-red-700"
+              >
+                Hapus
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">

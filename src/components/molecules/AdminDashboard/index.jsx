@@ -65,29 +65,54 @@ const AdminDashboard = () => {
       });
 
       const { data: activities, error: activitiesError } = await supabase
-        .from("rekam_medis_posyandu")
-        .select(
-          `id, id_anak, aktivitas_imunisasi, status_imunisasi, dibuat_pada`
-        )
-        .in(
-          "id_anak",
-          children.map((child) => child.id)
-        )
-        .order("dibuat_pada", { ascending: false });
+        .from("log_aktivitas")
+        .select("aktivitas, tanggal")
+        .eq("admin_id", adminId)
+        .order("tanggal", { ascending: false });
 
       if (activitiesError) {
         console.error("Error fetching activity history", activitiesError);
         return;
       }
 
-      setActivityHistory(
-        activities.map((activity) => ({
-          name: children.find((child) => child.id === activity.id_anak)?.nama,
-          aktivitas: activity.aktivitas_imunisasi || "Tidak ada aktivitas",
-          status: activity.status_imunisasi || "Tidak ada status",
-          date: activity.dibuat_pada,
-        }))
-      );
+      if (activities.length > 0) {
+        setActivityHistory(
+          await Promise.all(
+            activities.map(async (activity) => {
+              const {
+                data: childrenActivities,
+                error: childrenActivitiesError,
+              } = await supabase
+                .from("rekam_medis_posyandu")
+                .select("id_anak, status_imunisasi")
+                .eq("admin_id", adminId)
+                .eq("aktivitas_imunisasi", activity.aktivitas);
+
+              if (childrenActivitiesError) {
+                console.error(
+                  "Error fetching children activities",
+                  childrenActivitiesError
+                );
+                return null;
+              }
+
+              const totalChildren = children.length;
+              const childrenCompleted = childrenActivities.filter(
+                (child) => child.status_imunisasi === "sudah"
+              ).length;
+              const childrenNotCompleted = totalChildren - childrenCompleted;
+
+              return {
+                aktivitas: activity.aktivitas,
+                date: activity.tanggal,
+                totalChildren,
+                childrenCompleted,
+                childrenNotCompleted,
+              };
+            })
+          )
+        );
+      }
 
       const { data: growthData, error: growthError } = await supabase
         .from("rekam_medis_posyandu")
@@ -170,7 +195,7 @@ const AdminDashboard = () => {
       <h2 className="py-2 mb-6 text-2xl font-bold text-center rounded-md text-accent-800 bg-success-300">
         Admin Dashboard
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-xl font-semibold">Ringkasan</h3>
           <p className="mt-4 text-gray-600">
@@ -183,45 +208,60 @@ const AdminDashboard = () => {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-xl font-semibold">Riwayat Aktivitas</h3>
           {activityHistory.length > 0 ? (
-            <ul className="mt-4 space-y-2 text-gray-600">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
               {activityHistory.map((activity, index) => (
-                <li key={index}>
-                  Nama: {activity.name || "Tidak ada nama"} - Aktivitas:{" "}
-                  {activity.aktivitas} - Status: {activity.status} -{" "}
-                  {new Date(activity.date).toLocaleDateString()}
-                </li>
+                <div key={index} className="card bg-base-100 shadow-md">
+                  <div className="card-body">
+                    <h2 className="card-title">{activity.aktivitas}</h2>
+                    <p className="text-gray-700 mb-4">
+                      Tanggal:{" "}
+                      {new Date(activity.date).toLocaleDateString("id-ID", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                    <p className="text-gray-700 mb-2">
+                      Sudah: {activity.childrenCompleted} dari{" "}
+                      {activity.totalChildren}
+                    </p>
+                    <p className="text-gray-700 mb-2">
+                      Belum: {activity.childrenNotCompleted} dari{" "}
+                      {activity.totalChildren}
+                    </p>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
             <p className="mt-4 text-gray-600">Belum ada aktivitas.</p>
           )}
         </div>
-      </div>
-      <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">
-          Grafik Pertumbuhan Rata-rata Anak
-        </h3>
-        <div className="form-control">
-          <label className="label">Tahun</label>
-          <select
-            className="select select-bordered"
-            value={selectedYear}
-            onChange={handleYearChange}
-          >
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-      <div className="mt-8">
-        <div className="h-96 mt-14 md:h-[45rem]">
-          <Line
-            data={chartData}
-            options={{ responsive: true, maintainAspectRatio: false }}
-          />
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-xl font-semibold">
+            Grafik Pertumbuhan Rata-rata Anak
+          </h3>
+          <div className="form-control mt-4">
+            <label className="label">Tahun</label>
+            <select
+              className="select select-bordered"
+              value={selectedYear}
+              onChange={handleYearChange}
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="h-96 mt-14 md:h-[45rem]">
+            <Line
+              data={chartData}
+              options={{ responsive: true, maintainAspectRatio: false }}
+            />
+          </div>
         </div>
       </div>
     </div>

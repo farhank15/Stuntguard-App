@@ -197,113 +197,117 @@ const StuntingCalculator = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full p-10 md:flex-row bg-secondary">
-      <div className="w-full md:w-[40rem] max-w-md p-8 bg-white border rounded shadow-md md:mr-5 h-full md:h-[44rem] font-poppins flex flex-col">
-        <h2 className="mb-4 text-2xl font-bold text-center text-primary-500">
+    <div className="flex flex-col px-5 items-center justify-center min-h-screen py-10  font-poppins">
+      <div className="w-full max-w-4xl p-8 bg-white border rounded shadow-md mx-4 md:mx-0">
+        <h2 className="mb-4 text-3xl font-bold text-center text-primary-500">
           Deteksi Stunting
         </h2>
-        <div className="mb-4 flex-grow">
-          <label
-            className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="gender"
-          >
-            Jenis Kelamin
-          </label>
-          <select
-            className={`w-full p-2 border rounded ${
-              validationErrors.gender ? "border-red-500" : ""
-            }`}
-            id="gender"
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-          >
-            <option>Pilih Jenis Kelamin</option>
-            <option value="male">Laki-laki</option>
-            <option value="female">Perempuan</option>
-          </select>
-          {validationErrors.gender && (
-            <p className="mt-1 text-xs text-red-500">
-              {validationErrors.gender}
-            </p>
-          )}
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              className="block mb-2 text-sm font-bold text-gray-700"
+              htmlFor="gender"
+            >
+              Jenis Kelamin
+            </label>
+            <select
+              className={`w-full p-3 border rounded ${
+                validationErrors.gender ? "border-red-500" : ""
+              }`}
+              id="gender"
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+            >
+              <option>Pilih Jenis Kelamin</option>
+              <option value="male">Laki-laki</option>
+              <option value="female">Perempuan</option>
+            </select>
+            {validationErrors.gender && (
+              <p className="mt-1 text-xs text-red-500">
+                {validationErrors.gender}
+              </p>
+            )}
+          </div>
 
-        <div className="mb-4 flex-grow">
-          <label
-            className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="age"
-          >
-            Usia (bulan)
-          </label>
-          <input
-            type="number"
-            id="age"
-            className={`w-full p-2 border rounded ${
-              validationErrors.age ? "border-red-500" : ""
-            }`}
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-          />
-          {validationErrors.age && (
-            <p className="mt-1 text-xs text-red-500">{validationErrors.age}</p>
-          )}
-        </div>
+          <div>
+            <label
+              className="block mb-2 text-sm font-bold text-gray-700"
+              htmlFor="age"
+            >
+              Usia (bulan)
+            </label>
+            <input
+              type="number"
+              id="age"
+              className={`w-full p-3 border rounded ${
+                validationErrors.age ? "border-red-500" : ""
+              }`}
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+            />
+            {validationErrors.age && (
+              <p className="mt-1 text-xs text-red-500">
+                {validationErrors.age}
+              </p>
+            )}
+          </div>
 
-        <div className="mb-4 flex-grow">
-          <label
-            className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="height"
-          >
-            Tinggi Badan (cm)
-          </label>
-          <input
-            type="number"
-            id="height"
-            className={`w-full p-2 border rounded ${
-              validationErrors.height ? "border-red-500" : ""
-            }`}
-            value={height}
-            onChange={(e) => setHeight(e.target.value)}
-          />
-          {validationErrors.height && (
-            <p className="mt-1 text-xs text-red-500">
-              {validationErrors.height}
-            </p>
-          )}
-        </div>
+          <div>
+            <label
+              className="block mb-2 text-sm font-bold text-gray-700"
+              htmlFor="height"
+            >
+              Tinggi Badan (cm)
+            </label>
+            <input
+              type="number"
+              id="height"
+              className={`w-full p-3 border rounded ${
+                validationErrors.height ? "border-red-500" : ""
+              }`}
+              value={height}
+              onChange={(e) => setHeight(e.target.value)}
+            />
+            {validationErrors.height && (
+              <p className="mt-1 text-xs text-red-500">
+                {validationErrors.height}
+              </p>
+            )}
+          </div>
 
-        <div className="mb-4 flex-grow">
-          <label
-            className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="weight"
-          >
-            Berat Badan (kg)
-          </label>
-          <input
-            type="number"
-            id="weight"
-            className={`w-full p-2 border rounded ${
-              validationErrors.weight ? "border-red-500" : ""
-            }`}
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-          />
-          {validationErrors.weight && (
-            <p className="mt-1 text-xs text-red-500">
-              {validationErrors.weight}
-            </p>
-          )}
+          <div>
+            <label
+              className="block mb-2 text-sm font-bold text-gray-700"
+              htmlFor="weight"
+            >
+              Berat Badan (kg)
+            </label>
+            <input
+              type="number"
+              id="weight"
+              className={`w-full p-3 border rounded ${
+                validationErrors.weight ? "border-red-500" : ""
+              }`}
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+            />
+            {validationErrors.weight && (
+              <p className="mt-1 text-xs text-red-500">
+                {validationErrors.weight}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center justify-between mt-8">
           <button
-            className="px-6 py-2 text-white bg-primary-500 rounded hover:bg-primary-600 focus:outline-none"
+            className="px-6 py-3 text-white bg-primary-500 rounded hover:bg-primary-600 focus:outline-none"
             onClick={handleCalculate}
           >
             Hitung
           </button>
           <button
-            className="px-6 py-2 text-white bg-gray-500 rounded hover:bg-gray-600 focus:outline-none"
+            className="px-6 py-3 text-white bg-gray-500 rounded hover:bg-gray-600 focus:outline-none"
             onClick={handleReset}
           >
             Reset
@@ -311,109 +315,111 @@ const StuntingCalculator = () => {
         </div>
       </div>
 
-      <div className="w-full max-w-md md:w-[40rem] p-8 mt-10 bg-white border rounded shadow-md md:mt-0 h-full font-poppins flex flex-col">
-        <h2 className="mb-4 text-2xl font-bold text-center text-primary-500">
+      <div className="w-full max-w-4xl p-8 mt-10 bg-white border rounded shadow-md mx-4 md:mx-0">
+        <h2 className="mb-4 text-3xl font-bold text-center text-primary-500">
           Hasil Analisis
         </h2>
-        <div className="mb-4 flex-grow">
-          <label
-            className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="status"
-          >
-            Status
-          </label>
-          <input
-            type="text"
-            id="status"
-            className="w-full p-2 border rounded"
-            value={
-              analysisResult
-                ? analysisResult.isStunting
-                  ? "Stunting"
-                  : "Normal"
-                : ""
-            }
-            readOnly
-          />
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              className="block mb-2 text-sm font-bold text-gray-700"
+              htmlFor="status"
+            >
+              Status
+            </label>
+            <input
+              type="text"
+              id="status"
+              className="w-full p-3 border rounded"
+              value={
+                analysisResult
+                  ? analysisResult.isStunting
+                    ? "Stunting"
+                    : "Normal"
+                  : ""
+              }
+              readOnly
+            />
+          </div>
 
-        <div className="mb-4 flex-grow">
-          <label
-            className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="ratio"
-          >
-            Tinggi Badan/Berat Badan
-          </label>
-          <input
-            type="text"
-            id="ratio"
-            className="w-full p-2 border rounded"
-            value={analysisResult?.tbBbRatio?.toFixed(2) || ""}
-            readOnly
-          />
-        </div>
+          <div>
+            <label
+              className="block mb-2 text-sm font-bold text-gray-700"
+              htmlFor="ratio"
+            >
+              Tinggi Badan/Berat Badan
+            </label>
+            <input
+              type="text"
+              id="ratio"
+              className="w-full p-3 border rounded"
+              value={analysisResult?.tbBbRatio?.toFixed(2) || ""}
+              readOnly
+            />
+          </div>
 
-        <div className="mb-4 flex-grow">
-          <label
-            className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="heightRange"
-          >
-            Rentang Tinggi Badan
-          </label>
-          <input
-            type="text"
-            id="heightRange"
-            className="w-full p-2 border rounded"
-            value={analysisResult?.heightRange || ""}
-            readOnly
-          />
-        </div>
+          <div>
+            <label
+              className="block mb-2 text-sm font-bold text-gray-700"
+              htmlFor="heightRange"
+            >
+              Rentang Tinggi Badan
+            </label>
+            <input
+              type="text"
+              id="heightRange"
+              className="w-full p-3 border rounded"
+              value={analysisResult?.heightRange || ""}
+              readOnly
+            />
+          </div>
 
-        <div className="mb-4 flex-grow">
-          <label
-            className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="weightRange"
-          >
-            Rentang Berat Badan
-          </label>
-          <input
-            type="text"
-            id="weightRange"
-            className="w-full p-2 border rounded"
-            value={analysisResult?.weightRange || ""}
-            readOnly
-          />
-        </div>
+          <div>
+            <label
+              className="block mb-2 text-sm font-bold text-gray-700"
+              htmlFor="weightRange"
+            >
+              Rentang Berat Badan
+            </label>
+            <input
+              type="text"
+              id="weightRange"
+              className="w-full p-3 border rounded"
+              value={analysisResult?.weightRange || ""}
+              readOnly
+            />
+          </div>
 
-        <div className="mb-4 flex-grow">
-          <label
-            className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="clustering"
-          >
-            Clustering
-          </label>
-          <input
-            type="text"
-            id="clustering"
-            className="w-full p-2 border rounded"
-            value={analysisResult?.clustering || ""}
-            readOnly
-          />
-        </div>
+          <div className="col-span-1 md:col-span-2">
+            <label
+              className="block mb-2 text-sm font-bold text-gray-700"
+              htmlFor="clustering"
+            >
+              Clustering
+            </label>
+            <input
+              type="text"
+              id="clustering"
+              className="w-full p-3 border rounded"
+              value={analysisResult?.clustering || ""}
+              readOnly
+            />
+          </div>
 
-        <div className="mb-4 flex-grow h-36">
-          <label
-            className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="message"
-          >
-            Keterangan
-          </label>
-          <textarea
-            id="message"
-            className="w-full p-2 border rounded h-36"
-            value={analysisResult?.message || ""}
-            readOnly
-          />
+          <div className="col-span-1 md:col-span-2">
+            <label
+              className="block mb-2 text-sm font-bold text-gray-700"
+              htmlFor="message"
+            >
+              Keterangan
+            </label>
+            <textarea
+              id="message"
+              className="w-full p-3 border rounded h-36"
+              value={analysisResult?.message || ""}
+              readOnly
+            />
+          </div>
         </div>
       </div>
     </div>

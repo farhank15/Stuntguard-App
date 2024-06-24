@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Appshell from "@components/templates/Appshell";
 import Home from "@pages/home";
-import About from "./components/templates/About";
 import KalkulatorGizi from "./pages/KalkulatorGizi";
 import AddMemberForm from "./components/molecules/AddMemberForm";
 import EditMemberForm from "./components/molecules/EditMemberForm";
@@ -24,6 +23,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import LogAktivitas from "./pages/LogAktivitas";
 import ArtikelKesehatan from "./pages/ArticleKesehatan";
 import ArtikelPage from "./pages/ArtikelPages";
+import About from "./pages/about";
 
 function App() {
   return (
