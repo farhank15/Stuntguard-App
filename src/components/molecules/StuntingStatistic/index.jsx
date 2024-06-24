@@ -1,13 +1,25 @@
 import React, { useRef, useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
   Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const data = [
   { year: "2015", percentage: 28.0 },
@@ -47,6 +59,50 @@ const StuntingStatistics = () => {
     };
   }, []);
 
+  const chartData = {
+    labels: data.map((d) => d.year),
+    datasets: [
+      {
+        label: "Prevalensi Stunting (%)",
+        data: data.map((d) => d.percentage),
+        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        fill: true,
+        tension: 0.5,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Statistik Prevalensi Stunting di Indonesia",
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            return `${context.dataset.label}: ${context.raw}% (${context.label})`;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          callback: function (val, index) {
+            return data[index].year;
+          },
+        },
+      },
+    },
+  };
+
   return (
     <div className="p-4 mt-20 md:p-8 rounded-xl">
       <div className="flex flex-col items-center space-y-6 md:flex-row md:items-start md:space-y-0 md:space-x-10">
@@ -77,24 +133,9 @@ const StuntingStatistics = () => {
           className="w-full max-w-full mx-auto md:w-1/2 sm:max-w-2xl"
           ref={chartRef}
         >
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={data} margin={{ top: 20, right: 30, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="percentage"
-                stroke="#8884d8"
-                activeDot={{ r: 8 }}
-                animationBegin={0}
-                animationDuration={2000}
-                animationEasing="ease-in-out"
-                isAnimationActive={isChartVisible}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="h-96">
+            <Line data={chartData} options={options} />
+          </div>
         </div>
       </div>
     </div>

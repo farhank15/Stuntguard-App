@@ -27,7 +27,7 @@ const PrivateRoute = ({ children, role }) => {
 
     return children;
   } catch (error) {
-    console.error("Invalid token:", error);
+    console.error("Token tidak valid:", error);
     Cookies.remove("user_session");
     return <Navigate to="/sign-in" />;
   }

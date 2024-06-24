@@ -71,6 +71,9 @@ const AddRekapMedisPosyandu = () => {
     if (tinggiBadan < data.height_min && beratBadan < data.weight_min) {
       return { status: "perhatian khusus", warnaHeksa: "#FF0000" }; // Merah
     }
+    if (tinggiBadan < data.height_min && beratBadan > data.weight_min) {
+      return { status: "perhatian khusus", warnaHeksa: "#FF0000" }; // Merah
+    }
 
     return { status: "perlu perhatian", warnaHeksa: "#FFFF00" }; // Kuning
   };
@@ -79,6 +82,7 @@ const AddRekapMedisPosyandu = () => {
     e.preventDefault();
     let usia = anakData.usia;
     const gender = anakData.jenis_kelamin;
+    const adminId = anakData.admin_id; // Ambil admin_id dari data anak
 
     // Asumsikan usia dalam bulan, jika dalam tahun, konversi ke bulan
     if (usia < 24) {
@@ -97,6 +101,7 @@ const AddRekapMedisPosyandu = () => {
 
     const dataToInsert = {
       id_anak: id,
+      admin_id: adminId, // Tambahkan admin_id ke data yang akan diinsert
       tinggi_badan: parseFloat(tinggiBadan),
       berat_badan: parseFloat(beratBadan),
       usia: usia,

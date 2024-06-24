@@ -136,7 +136,7 @@ const GrafikPertumbuhan = ({ childId, selectedYear }) => {
   };
 
   return (
-    <div className="h-96 md:h-[40rem]">
+    <div className="h-96 mt-14 md:h-[45rem]">
       <Line data={data} options={options} />
     </div>
   );

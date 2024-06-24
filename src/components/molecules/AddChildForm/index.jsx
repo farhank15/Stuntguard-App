@@ -262,7 +262,22 @@ const AddChildForm = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center px-2 items-center py-40 bg-gray-100">
+        <div className="card w-full lg:w-1/2 bg-white shadow-xl p-6 rounded-lg">
+          <div className="h-10 bg-gray-200 animate-pulse mb-6"></div>
+          <div className="grid grid-cols-1 gap-6 mt-6">
+            <div className="h-10 bg-gray-200 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -399,7 +414,7 @@ const AddChildForm = () => {
             </label>
             <input
               type="number"
-              name="usia (bulan)"
+              name="usia"
               className="input input-bordered w-full"
               value={formData.usia}
               onChange={handleChange}

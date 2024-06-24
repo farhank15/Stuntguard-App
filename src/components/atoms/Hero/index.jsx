@@ -42,7 +42,11 @@ const HeroAtom = ({
         <div className="max-w-md xl:max-w-5xl">
           <h1 className={`mb-3 xl:mb-5 text-shadow ${classNameT}`}>{title}</h1>
           <p className={`mb-3 ${classNameD}`}>{description}</p>
-          <Button name="Mulai Cegah" className="bg-secondary-400 rounded-lg" />
+          <Button
+            path="/kalkulator-gizi"
+            name="Mulai Cegah"
+            className="bg-secondary-400 rounded-lg"
+          />
         </div>
       </div>
       <div style={waveStyles}>

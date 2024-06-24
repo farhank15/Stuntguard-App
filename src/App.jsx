@@ -19,9 +19,10 @@ import EventSchedule from "./pages/EventSchedule";
 import ManageEvents from "./pages/ManageEvents";
 import PrivateRoute from "./utils/ProtectedRoute";
 import RekapPosyandu from "./pages/RekapPosyandu";
-import AddRekapMedisPosyandu from "./pages/AddRekapMedisPosyandu AddRekapMedisPosyandu";
+import AddRekapMedisPosyandu from "./pages/AddRekapMedisPosyandu";
 import DashboardUser from "./pages/DashboardUser";
 import ChildDetail from "./pages/ChildDetail";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -33,19 +34,35 @@ function App() {
           <Route path="/artikel-kesehatan" element={<ArticleList />} />
           <Route path="/artikel-kesehatan/:id" element={<ArticlePage />} />
           <Route path="/kalkulator-gizi" element={<KalkulatorGizi />} />
-          <Route path="/dashboard/:id" element={<DashboardUser />} />
-          <Route path="/child/:id" element={<ChildDetail />} />
+          <Route path="/sign-in" element={<SignInForm />} />
+          <Route path="/sign-up" element={<SignUpForm />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          {/* Protected routes for authenticated users */}
+          <Route
+            path="/dashboard/:id"
+            element={
+              <PrivateRoute role="user">
+                <DashboardUser />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/child/:id"
+            element={
+              <PrivateRoute role="user">
+                <ChildDetail />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/events"
             element={
-              <PrivateRoute>
+              <PrivateRoute role="user">
                 <EventSchedule />
               </PrivateRoute>
             }
           />
-          <Route path="/sign-in" element={<SignInForm />} />
-          <Route path="/sign-up" element={<SignUpForm />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Protected routes for admin only */}
           <Route
@@ -117,6 +134,14 @@ function App() {
             element={
               <PrivateRoute role="admin">
                 <AddRekapMedisPosyandu />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/:id"
+            element={
+              <PrivateRoute role="admin">
+                <AdminDashboard />
               </PrivateRoute>
             }
           />
